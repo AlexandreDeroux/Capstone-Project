@@ -192,7 +192,7 @@ if st.button("🚀 Fetch Company Information"):
             # Display company information
             st.subheader("📋 Company Information")
             company_df = json_to_dataframe(data)
-            st.dataframe(company_df.T.style.format(na_rep="N/A"), use_container_width=True)
+            st.dataframe(company_df.T.dropna(how="all").style.format(na_rep="N/A"), use_container_width=True)
 
             # Fetch relationships
             st.subheader("🔗 Company Relationships")
@@ -215,7 +215,7 @@ if st.button("🚀 Fetch Company Information"):
                         )
                         
                 if not relationship_df_display.empty:
-                    st.dataframe(relationship_df_display.T.style.format(na_rep="N/A"), use_container_width=True)
+                    st.dataframe(relationship_df_display.T.dropna(how="all").style.format(na_rep="N/A"), use_container_width=True)
                 else:
                     st.info("ℹ️ No relationships found.")
             else:

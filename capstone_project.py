@@ -103,7 +103,7 @@ def json_to_dataframe(data):
     # Converting the flattened dictionary into a DataFrame
     df = pd.DataFrame([flat_data])
 
-    return df.set_index("LEI")
+    return df.set_index("Legal Name")
 
 def fetch_relationship_data(base_data):
     """

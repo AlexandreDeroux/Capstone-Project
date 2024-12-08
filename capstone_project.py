@@ -103,7 +103,7 @@ def json_to_dataframe(data):
     # Converting the flattened dictionary into a DataFrame
     df = pd.DataFrame([flat_data])
 
-    return df
+    return df.set_index("LEI")
 
 def fetch_relationship_data(base_data):
     """
@@ -172,41 +172,51 @@ def extract_related_leis(relationship_data, input_lei):
 
     return list(set(related_leis))
 
-# Streamlit App
-st.title("LEI Lookup Service")
+# Application title
+st.title("🔍 LEI Lookup Service")
+st.write("This application allows you to search for company information using its **LEI (Legal Entity Identifier)**.")
 
-# Input LEI
+# User input
 input_lei = st.text_input("Enter the LEI to look up:", "529900W18LQJJN6SJ336")
 
-if st.button("Fetch Company Information"):
-    # Fetch the company information
-    data = get_lei_information(input_lei)
+# Add a button to trigger the search
+if st.button("🚀 Fetch Company Information"):
+    with st.spinner("Retrieving data..."):
+        # Placeholder function to fetch LEI information
+        data = get_lei_information(input_lei)
 
-    if "error" in data:
-        st.error(f"Error: {data['error']}")
-        st.write(f"Details: {data['details']}")
-    else:
-        # Display company information
-        st.subheader("Company Information")
-        company_df = json_to_dataframe(data)
-        st.dataframe(company_df)
-
-        # Fetch relationship data
-        st.subheader("Company Relationships")
-        relationship_df = fetch_relationship_data(data)
-
-        if not relationship_df.empty:
-            # Extract relationship data for display
-            relationship_data = relationship_df["Data"]
-            related_leis = extract_related_leis(relationship_data, input_lei)
-            relationship_df_display = pd.DataFrame()
-            for related_lei in related_leis:
-                data = get_lei_information(related_lei)
-                if "error" in data:
-                    st.error(f"Error: {data['error']}")
-                    st.write(f"Details: {data['details']}")
-                else:
-                    relationship_df_display = pd.concat([relationship_df_display, json_to_dataframe(data)], ignore_index=True)
-            st.dataframe(relationship_df_display)
+        if "error" in data:
+            st.error(f"❌ Error: {data['error']}")
+            st.write(f"🔍 Details: {data['details']}")
         else:
-            st.write("No relationships found.")
+            # Display company information
+            st.subheader("📋 Company Information")
+            company_df = json_to_dataframe(data)
+            st.dataframe(company_df.T.style.format(na_rep="N/A"), use_container_width=True)
+
+            # Fetch relationships
+            st.subheader("🔗 Company Relationships")
+            relationship_df = fetch_relationship_data(data)
+
+            if not relationship_df.empty:
+                # Extract related LEIs
+                relationship_data = relationship_df["Data"]
+                related_leis = extract_related_leis(relationship_data, input_lei)
+                
+                relationship_df_display = pd.DataFrame()
+                for related_lei in related_leis:
+                    data = get_lei_information(related_lei)
+                    if "error" in data:
+                        st.error(f"❌ Error: {data['error']}")
+                        st.write(f"🔍 Details: {data['details']}")
+                    else:
+                        relationship_df_display = pd.concat(
+                            [relationship_df_display, json_to_dataframe(data)], ignore_index=False
+                        )
+                        
+                if not relationship_df_display.empty:
+                    st.dataframe(relationship_df_display.T.style.format(na_rep="N/A"), use_container_width=True)
+                else:
+                    st.info("ℹ️ No relationships found.")
+            else:
+                st.info("ℹ️ No relationships found.")

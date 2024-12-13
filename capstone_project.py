@@ -173,7 +173,7 @@ def extract_related_leis(relationship_data, input_lei):
     return list(set(related_leis))
 
 # Application title
-st.title("🔍 LEI Lookup Service")
+st.title("🔍 LEI Lookup Service!")
 st.write("This application allows you to search for company information using its **LEI (Legal Entity Identifier)**.")
 
 # User input
